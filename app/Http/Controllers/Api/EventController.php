@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
-    public function index(Request $request)
+      public function index(Request $request)
     {
         $query = Event::query();
 
@@ -56,5 +56,16 @@ class EventController extends Controller
 
 
         return response()->json($events);
+    }
+
+    public function show($id)
+    {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        return response()->json($event);
     }
 }

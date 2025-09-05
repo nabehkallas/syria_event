@@ -2,11 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AddCorsHeader
+class AuthenticateAndAdmin
 {
     /**
      * Handle an incoming request.
@@ -15,12 +17,10 @@ class AddCorsHeader
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        if (!Auth::guard('sanctum')->check() || Auth::guard('sanctum')->user()->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
 
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:8081');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-        return $response;
+        return $next($request);
     }
 }
